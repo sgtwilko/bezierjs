@@ -1,0 +1,46 @@
+<style>
+div {
+  white-space: pre;
+}
+</style>
+<body>
+  <div id="log"></div>
+  <script src="../lib/math.js"></script>
+  <script src="../lib/vector.js"></script>
+  <script src="../lib/utils.js"></script>
+  <script src="../lib/prototype.js"></script>
+  <script src="../lib/test.js"></script>
+  <script>
+    var b, points;
+
+    var profile = function(b) {
+      println('---');
+      println(b);
+      println("f(0): "   + b.get(0));
+      println("f(0.5): " + b.get(0.5));
+      println("f(1): "   + b.get(1));
+
+      println("f'(0): "   + b.derivative(0));
+      println("f'(0.5): " + b.derivative(0.5));
+      println("f'(1): "   + b.derivative(1));
+
+      println("n(0): "   + b.normal(0));
+      println("n(0.5): " + b.normal(0.5));
+      println("n(1): "   + b.normal(1));
+    };
+
+    b = new Bezier(0,0 , 0.5,1 , 1,0);
+    points = b.split(0.321).span;
+    console.log(points.map(function(p) { return p.toString(); }));
+    profile(b);
+
+    b = new Bezier(0,0 , 0,1 , 1,1 , 1,0);
+    points = b.split(0.321).span;
+    console.log(points.map(function(p) { return p.toString(); }));
+    profile(b);
+
+    b = new Bezier(-100,100,0 , 200,-100,100 , 0,100,-500 , -100,-100,100);
+    profile(b);
+
+  </script>
+</body>

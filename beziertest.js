@@ -165,6 +165,7 @@ var ofs = {x:600, y:0};
   // convert outline to a series of simple-offset shapes instead
   var shapes = shapes || curve.outlineshapes(offset, offset/2);
 
+
   //
   // Draw the offset outline as a filled shape
   // next to the original curve.
@@ -175,7 +176,6 @@ var ofs = {x:600, y:0};
     drawShape(shape, ofs);
   });
 
-
   //
   // find intersections between individual shapes
   //
@@ -185,14 +185,29 @@ var ofs = {x:600, y:0};
       var si = shapes[i];
       for(var j=i+2; j<shapes.length; j++) {
         var sj = shapes[j];
-        var sis =si.intersections(sj);
+        var sis = si.intersections(sj);
         if(sis.length>0) {
           shapeiss = shapeiss.concat(sis);
-          // TODO: actually resolve these intersections, too!
+          sis.forEach(function(s) {
+            var tts = s[0].split("/");
+            var t1 = tts[0];
+            var t2 = tts[1];
+            s.c1.addIS(sj, s.c2, t1);
+            s.c2.addIS(si, s.c1, t2);
+          });
         }
       }
     }
   }
+
+
+  var contained = function(curve, shape) {
+    var p1 = curve.offset(0.5, 2);
+    var p2 = curve.offset(0.5,-2);
+    var s1 = shape.contains(p1);
+    var s2 = shape.contains(p2);
+    return s1 && s2;
+  };
 
 
   //
@@ -201,10 +216,25 @@ var ofs = {x:600, y:0};
   ctx.fillStyle = "rgba(255,0,0,0.2)";
   shapeiss.forEach(function(s) {
     s.forEach(function(str) {
-      drawPoint(s.c1.get(str.split("/")[0]), ofs);
+      if(typeof str === "string") {
+        drawPoint(s.c1.get(str.split("/")[0]), ofs);
+      }
     });
-    drawShape(s.s1, ofs);
-    drawShape(s.s2, ofs);
+    ctx.strokeStyle = "grey";
+
+    // drawShape(s.s1, ofs);
+    // drawShape(s.s2, ofs);
+
+    var curves = [s.c1, s.c2];
+    curves.forEach(function(c, idx) {
+      c.intersections.forEach(function(intersection) {
+        var split = c.split(intersection.t);
+        split.forEach(function(sbc) {
+          ctx.strokeStyle = contained(sbc, intersection.shape) ? "red" : "green";
+          drawCurve(sbc, ofs);
+        });
+      });
+    });
   });
 
 

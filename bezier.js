@@ -77,15 +77,23 @@
    * Bezier curve prototype.
    */
   Bezier.prototype = {
-    addIS: function(curve, t) {
-      var intersect = { other: curve, t: t };
+    valueOf: function() {
+      return this.toString();
+    },
+    toString: function() {
+      return this.points.map(function(p) {
+        return (p.x|0) + "/" + (p.y|0);
+      }).join(", ");
+    },
+    addIS: function(shape, curve, t) {
+      var intersect = { shape: shape, curve: curve, t: t };
       if(!this.intersections) { this.intersections = []; }
       if(this.type === "outline" && curve.type === "outline") {
         // we cannot intersect this curve more than once.
         var found = false;
         for(var i=this.intersections.length-1; i>=0; i--) {
           var o = this.intersections[i];
-          if(o.other === curve) {
+          if(o.curve === curve) {
             found = true;
             break;
           }

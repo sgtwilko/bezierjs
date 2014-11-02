@@ -3,16 +3,22 @@ var drawCurve = function(curve, offset) {
   offset = offset || { x:0, y:0 };
   var ox = offset.x;
   var oy = offset.y;
-  var points = curve.getLUT(100);
+  // var points = curve.getLUT(100);
+  // var p = points[0], i;
+  // ctx.moveTo(p.x + ox, p.y + oy);
+  // for(i=1; i<points.length; i++) {
+  //   p = points[i];
+  //   ctx.lineTo(p.x + ox, p.y + oy);
+  // }
+  var p = curve.points;
   ctx.beginPath();
-  var p = points[0], i;
-  ctx.moveTo(p.x + ox, p.y + oy);
-  for(i=1; i<points.length; i++) {
-    p = points[i];
-    ctx.lineTo(p.x + ox, p.y + oy);
-  }
+  ctx.moveTo(p[0].x + ox, p[0].y + oy);
+  ctx.bezierCurveTo(
+    p[1].x + ox, p[1].y + oy,
+    p[2].x + ox, p[2].y + oy,
+    p[3].x + ox, p[3].y + oy
+  );
   ctx.stroke();
-  ctx.closePath();
 };
 
 // helper function for drawing points as circles
