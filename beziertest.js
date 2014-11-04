@@ -125,12 +125,10 @@ function drawFrame() {
   // Draw the curve, rendered as two subcurves split at "t"
   //
   var curves = curve.split(t);
-  curves[0].color = "red";
-  curves[1].color = "blue";
-  curves.forEach(function(curve) {
-    ctx.strokeStyle = curve.color;
-    drawCurve(ctx, curve);
-  });
+  ctx.strokeStyle = "red";
+  drawCurve(ctx, curves.left);
+  ctx.strokeStyle = "blue";
+  drawCurve(ctx, curves.right);
 
 
   //
