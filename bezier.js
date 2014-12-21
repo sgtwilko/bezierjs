@@ -142,6 +142,9 @@ module.exports = (function() {
     length: function() {
       return utils.length(this.points, this.derivative.bind(this));
     },
+    area: function() {
+      return utils.area(this.points);
+    },
     getLUT: function(steps) {
       steps = steps || 100;
       var points = [];
@@ -296,6 +299,31 @@ module.exports = (function() {
       t2 = utils.map(t2,t1,1,0,1);
       var subsplit = result.right.split(t2);
       return subsplit.left;
+    },
+    splitOnLineIntersection: function() {
+      // splits cubic curves on the line from p1 to p4 (if it intersects with
+      // the curve). returns resulting segments as a list.
+      var p = this.points;
+      if (this.order !== 3) return [this];
+      var lineInter = this.intersects({
+        p1: p[0],
+        p2: p[3]
+      }).filter(function(t) {
+        return t > 1e-9 && 1 - t > 1e-9;
+      });
+      if (lineInter.length) {
+        var segments = this.split(lineInter);
+        return [segments.left, segments.right];
+      } else {
+        return [this];
+      }
+    },
+    getLoop: function() {
+      // get the subsection of this curve that forms a loop, if it exists
+      var selfInter = this.intersects()[0];
+      if (!selfInter) return null;
+      selfInter = selfInter.split("/");
+      return this.split(selfInter[0], selfInter[1]);
     },
     inflections: function() {
       var dims = this.dims,
@@ -905,6 +933,18 @@ module.exports = (function() {
         sum += this.Cvalues[i] * this.arcfn(p,t,derivativeFn);
       }
       return z * sum;
+    },
+    area: function(p) {
+      if (p.length != 4) return 0;
+      var x0 = p[0].x, y0 = p[0].y,
+        x1 = p[1].x - x0, y1 = p[1].y - y0,
+        x2 = p[2].x - x0, y2 = p[2].y - y0,
+        x3 = p[3].x - x0, y3 = p[3].y - y0;
+      return (
+          x1 * (   -   y2 -   y3)
+        + x2 * (y1        - 2*y3)
+        + x3 * (y1 + 2*y2       )
+      ) * 3 / 20;
     },
     map: function(v, ds,de, ts,te) {
       var d1 = de-ds, d2 = te-ts, v2 =  v-ds, r = v2/d1;
